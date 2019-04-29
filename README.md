@@ -83,7 +83,7 @@ If error ocurres, you can send one of predefined HTTP errors via `ctx.Error(http
 - `func BadRequestError(payload ErrorPayload, msg ...string) *HTTPError // 400`
 - `func UnauthorizedError(payload ErrorPayload, msg ...string) *HTTPError // 401`
 - `func NotFoundError(msg ...string) *HTTPError // 404`
-- `func func MethodNotAllowedError() *HTTPError // 405 - This is used by router itself primarily`
+- `func MethodNotAllowedError() *HTTPError // 405 - This is used by router itself primarily`
 - `func InternalError(msg ...string) *HTTPError // 500`
 
 All these functions return JSON response.
@@ -100,12 +100,12 @@ All these functions return JSON response.
 Context is the only variable which is passed to every `RouterHandler` function and has following structure 
 ```go
 type Context struct {
-	Res          http.ResponseWriter
-	Req          *http.Request
-	Params       URLParams
-	Query        interface{} // query parameters
-	Method       string      // HTTP method
-	URI          string
+  Res     http.ResponseWriter
+  Req     *http.Request
+  Params  URLParams
+  Query   interface{} // query parameters
+  Method  string      // HTTP method
+  URI     string
 }
 ```
 

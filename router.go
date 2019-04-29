@@ -145,8 +145,8 @@ func (router *Router) addRoute(method string, path string, handlers []RouteHandl
 	// parse URI to pattern
 	// replace URI variable placeholders with regex
 	// e.g. /users/{userID}/posts/{postID} -> ^/users/([^\/]+?)/posts/([^\/]+?)$
-	var re = regexp.MustCompile(`\{(.*?)\}`)                      // e.g. {userId}
-	pattern := "^" + re.ReplaceAllString(path, `([^\/]+?)`) + "$" // will be replaced with ([^\/]+?)
+	var re = regexp.MustCompile(`\{(.*?)\}`)                                           // e.g. {userId}
+	pattern := "^" + re.ReplaceAllString(normalizeURLSlashes(path), `([^\/]+?)`) + "$" // will be replaced with ([^\/]+?)
 
 	// TODO: add support for optional parameters e.g. /users/{id?}
 	// TODO: add support for specifying additional regex rules for variable e.g. /users/{id:[a-zA-Z]+}, or /users/{id:[0-9]+}

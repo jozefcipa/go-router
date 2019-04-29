@@ -5,7 +5,6 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
-	"strings"
 )
 
 // ContextData is map of key-value data that can be stored in global context
@@ -34,19 +33,13 @@ type response struct {
 
 func createContext(response http.ResponseWriter, request *http.Request) (ctx *Context) {
 	request.ParseMultipartForm(32 << 20) // parse form data
-
-	// prepare url
-	url := request.URL.Path
-	url = strings.TrimSuffix(url, "/")       // trim trailing /
-	url = "/" + strings.TrimPrefix(url, "/") // make sure every route starts with /
-
 	ctx = &Context{
 		Res:          response,
 		Req:          request,
 		Params:       make(URLParams),
 		Query:        request.URL.Query(),
 		Method:       request.Method,
-		URI:          url,
+		URI:          normalizeURLSlashes(request.URL.Path),
 		data:         make(ContextData),
 		responseSent: false,
 	}

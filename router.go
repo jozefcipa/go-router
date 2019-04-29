@@ -61,17 +61,11 @@ func (h httpHandler) ServeHTTP(response http.ResponseWriter, request *http.Reque
 }
 
 func getHandlerForRoute(ctx *Context, routes []*Route) ([]RouteHandler, *HTTPError) {
-	notAllowed := false
-	var routeRegex *regexp.Regexp
 	for _, route := range routes {
-		// match route
-		// compare current URL against defined route pattern regex
-		routeRegex = regexp.MustCompile(route.pattern)
-		// if there is match it may contain variables from URL placeholders
-		match := routeRegex.FindStringSubmatch(ctx.URI)
-
-		if len(match) > 0 {
-			if (*route).Method == ctx.Method {
+		// check if URL matches some of predefined endpoints
+		if len(matchURL(route, ctx.URI)) > 0 {
+			// if we have a URL match, check if there is specified endpoint with given http method
+			if match := getMatchForMethod(route, ctx.URI, ctx.Method, routes); len(match) > 0 {
 				// bind URL variable placeholders with parsed values
 				// and bind those params to ctx
 				values := match[1:]
@@ -79,17 +73,29 @@ func getHandlerForRoute(ctx *Context, routes []*Route) ([]RouteHandler, *HTTPErr
 
 				// return router handlers array
 				return (*route).Handlers, nil
+			} else {
+				// If there is route match but with different method we mark it as HTTP 405
+				return nil, MethodNotAllowedError()
 			}
-			// If there is route match but with different method we mark it as HTTP 405
-			notAllowed = true
-		} else {
-			notAllowed = false
 		}
 	}
-	if notAllowed {
-		return nil, MethodNotAllowedError()
-	}
 	return nil, NotFoundError()
+}
+
+func matchURL(route *Route, path string) []string {
+	routeRegex := regexp.MustCompile(route.pattern)
+	// if there is match it may contain variables from URL placeholders
+	return routeRegex.FindStringSubmatch(path)
+}
+
+func getMatchForMethod(route *Route, path string, method string, routes []*Route) []string {
+	for _, route := range routes {
+		match := matchURL(route, path)
+		if len(match) > 0 && route.Method == method {
+			return match
+		}
+	}
+	return []string{}
 }
 
 func executeHandlers(handlers []RouteHandler, ctx *Context) *Context {
@@ -156,7 +162,7 @@ func (router *Router) addRoute(method string, path string, handlers []RouteHandl
 	// append route
 	(*router).routes = append((*router).routes, &Route{
 		Method:    method,
-		URI:       path,
+		URI:       normalizeURLSlashes(path),
 		Handlers:  handlers,
 		pattern:   pattern,
 		variables: variables,
@@ -189,4 +195,10 @@ func mapURLParams(names, values []string) URLParams {
 		params[name] = values[i]
 	}
 	return params
+}
+
+func normalizeURLSlashes(url string) string {
+	url = strings.TrimSuffix(url, "/")       // trim trailing /
+	url = "/" + strings.TrimPrefix(url, "/") // make sure every route starts with /
+	return url
 }

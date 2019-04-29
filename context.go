@@ -22,7 +22,7 @@ type Context struct {
 	Method       string
 	URI          string
 	data         ContextData
-	responseSent bool // Flag is response has been already written, used to avoid write headers multiple times
+	responseSent bool // Flag if response has been already written, used to avoid writing headers multiple times
 }
 
 type response struct {

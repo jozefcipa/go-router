@@ -1,7 +1,6 @@
 package router
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -13,10 +12,6 @@ type HTTPError struct {
 	Message string
 	Code    int
 	Payload ErrorPayload
-}
-
-func (httpError *HTTPError) Error() string {
-	return fmt.Sprintf("HTTP Error %d: %s", httpError.Code, httpError.Message)
 }
 
 // GetResponseData returns serialized JSON which is sent to client in case of error

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
 // ContextData is map of key-value data that can be stored in global context
@@ -18,7 +19,7 @@ type Context struct {
 	Res          http.ResponseWriter
 	Req          *http.Request
 	Params       URLParams
-	Query        interface{}
+	Query        url.Values
 	Method       string
 	URI          string
 	data         ContextData
